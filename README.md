@@ -24,13 +24,13 @@ The fitted width is the half-width at half-maximum (HWHM) of the ACF fit. The an
 
 The frequency-time representation of burst 11A used in the analysis.
 
-![Dynamic spectrum of FRB 121102 burst 11A](figures./11A_dynamic_spectrum.png)
+![Dynamic spectrum of FRB 121102 burst 11A](frbacf/figures./11A_dynamic_spectrum.png)
 
 ### Injection-recovery calibration
 
 Injected frequency-correlation widths are compared with the widths recovered by the pipeline at the three envelope scales. This is used to calibrate the measured ACF widths.
 
-![Injection-recovery calibration](figures./11A_injection_recovery.png)
+![Injection-recovery calibration](frbacf/figures./11A_injection_recovery.png)
 
 The figures are generated locally by the pipeline. The PNG files must be uploaded to the repository's `figures/` directory for them to appear here.
 
