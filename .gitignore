@@ -1,0 +1,13 @@
+# data and outputs
+data/*.calib.4p
+data/*.fits
+results/
+figures/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
