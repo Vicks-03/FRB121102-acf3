@@ -338,7 +338,4 @@ FRB121102-acf3/
 ## License
 
 This project is released under the MIT License. See [LICENSE](LICENSE).
-## License
-
-This project is released under the MIT License.
 
