@@ -1,4 +1,4 @@
-# frb121102-acf
+# frb121102-acf3
 
 Frequency autocorrelation analysis of burst spectra from the repeating fast radio
 burst FRB 121102, using the public Breakthrough Listen observations made with the
@@ -10,11 +10,13 @@ not public, so the aim here is not to reproduce their number. It is to implement
 same kind of measurement, find out how reliable it is on a different data set, and
 say clearly what the result does and does not show.
 
-**Short version of the result.** In the later part of burst 11A the spectrum has a
-frequency correlation width of about 10 MHz near 6 GHz (calibration range roughly
-8-13 MHz). That is the right order of magnitude for Galactic scintillation, but these
-data do not show that it is scintillation. Of the five bursts I looked at, only 11A
-was bright enough to give a stable width. The write-up has the details.
+**Short version of the result.** In the later part of burst 11A (2.7-5.0 ms), the
+spectrum has a frequency correlation width of about 9.9 MHz near 6 GHz after
+injection-recovery calibration. The three envelope scales give corrected widths of
+8.45, 10.04 and 11.06 MHz, with individual calibration ranges spanning roughly
+7.7-13.2 MHz. This is the right order of magnitude for Galactic scintillation, but
+these data do not establish that the measured structure is scintillation. Of the five
+bursts I looked at, only 11A was bright enough to give a stable width.
 
 ## What the code does
 
@@ -40,12 +42,29 @@ The measured width depends on the envelope scale, so the code also calibrates it
 
 ## Setup
 
+Clone the repository:
+
     git clone https://github.com/Vicks-03/FRB121102-acf3.git
-    cd frb121102-acf
+    cd FRB121102-acf3
+
+Install the dependencies:
+
     pip install -r requirements.txt
+
+For running the tests, also install:
+
+    pip install -r requirements-dev.txt
 
 Download the data as described in [data/README.md](data/README.md). Run everything
 from the repository root.
+
+The calibrated observational files are not included in the repository because of
+their size. Download the required `.calib.4p` files from:
+
+https://seti.berkeley.edu/frb121102/technical.html
+
+Place them inside the `data/` directory. The expected size of each calibrated file
+is 322,367,040 bytes.
 
 ## Usage
 
@@ -57,15 +76,23 @@ Run the full analysis from a config file:
 
     python scripts/measure.py configs/11A.json
 
-This prints a report and writes `results/11A_summary.json`. A full run takes a few
-minutes; `--n-trials 4` makes it faster with a noisier calibration, and
-`--n-white 500` uses more noise-only spectra for the false-alarm check.
+This prints a report and writes `results/11A_summary.json`. The standard run uses
+eight injection trials and 200 white-noise spectra. A smaller number of injection
+trials can be used for a quicker, less thoroughly sampled calibration:
+
+    python scripts/measure.py configs/11A.json --n-trials 4
 
 Make the report figures (needs `early_window_ms` in the config):
 
     python scripts/make_figures.py configs/11A.json
 
-This writes PNG and PDF files to `figures/`.
+This writes five sets of figures in both PNG and PDF formats to `figures/`:
+
+- Dynamic spectrum
+- ACF and Gaussian fits
+- Injection-recovery calibration
+- ACF comparison across envelope scales
+- Envelope-scale dependence
 
 A config looks like this:
 
@@ -77,23 +104,97 @@ A config looks like this:
       "off_window_ms": [8.0, 21.0]
     }
 
-The off-pulse window sets each channel's noise level and supplies the empty windows,
-so it must be free of burst emission. Windows are in milliseconds from the start of
-the 20 ms snapshot.
+The off-pulse window sets each channel's noise level and supplies the empty windows
+and background spectra used in calibration, so it must be free of burst emission.
+Windows are in milliseconds from the start of the approximately 20 ms snapshot.
+
+## Running in Google Colab
+
+The repository can also be run in Google Colab without installing Python locally.
+
+1. Open https://colab.research.google.com/ and create a new notebook.
+2. Clone the repository:
+
+       !git clone https://github.com/Vicks-03/FRB121102-acf3.git
+
+3. Enter the repository directory:
+
+       %cd /content/FRB121102-acf3
+
+4. Install the dependencies:
+
+       !pip install -r requirements-dev.txt
+
+5. Download `11A_16sec.calib.4p` from the Breakthrough Listen data page and upload
+   it to Colab:
+
+       from google.colab import files
+       uploaded = files.upload()
+
+6. Move the uploaded file into the data directory:
+
+       import shutil
+       shutil.move(
+           "/content/11A_16sec.calib.4p",
+           "data/11A_16sec.calib.4p"
+       )
+
+7. Run the automated tests:
+
+       !pytest -v
+
+8. Run the screening script:
+
+       !python scripts/screen_burst.py data/11A_16sec.calib.4p
+
+9. Run the full analysis:
+
+       !python scripts/measure.py configs/11A.json
+
+10. Generate the figures:
+
+       !python scripts/make_figures.py configs/11A.json
+
+The numerical summary will be saved in `results/` and the figures in `figures/`.
 
 ## Results
 
-Numbers from my notebook runs on burst 11A (late window, 2.7-5.0 ms, centre frequency
+Numbers from the latest run on burst 11A (late window, 2.7-5.0 ms, centre frequency
 about 6.0 GHz):
 
-| Envelope scale | Raw HWHM | Corrected HWHM |
-|---|---|---|
-| 80 MHz | 5.8 MHz | 8.6 MHz |
-| 150 MHz | 7.7 MHz | 9.8 MHz |
-| 300 MHz | 9.4 MHz | 10.7 MHz |
+| Envelope scale | Raw HWHM | Corrected HWHM | 68% calibration range |
+|---|---|---|---|
+| 80 MHz | 5.8 MHz | 8.45 MHz | 7.66-9.74 MHz |
+| 150 MHz | 7.7 MHz | 10.04 MHz | 8.56-12.03 MHz |
+| 300 MHz | 9.4 MHz | 11.06 MHz | 9.25-13.16 MHz |
 
-The three scales use the same data, so the spread (about 8-13 MHz including the
-calibration ranges) is a robustness range and not a confidence interval.
+The mean of the three corrected widths is 9.85 MHz. Their range is 8.45-11.06 MHz.
+
+The three scales use the same data, so their spread is a robustness range and not
+an independent statistical confidence interval. The individual calibration ranges
+describe the injection-recovery calibration, not the complete uncertainty on the
+astrophysical measurement.
+
+The alternative normalisation gives raw widths of 5.78, 7.74 and 9.38 MHz,
+respectively, very close to the adopted normalisation.
+
+Other diagnostics from the same run:
+
+- Approximate S/N: 34.3
+- Centre frequency: 5999.7 MHz
+- Masked channels: 1817
+- Detection rule: passed at all three scales
+- Empty windows passing the rule: 0 of 5
+- White-noise spectra passing the rule: 0.0 fraction
+- Adopted calibration-array ordering bandpass roughness: 0.0587
+- Alternative ordering bandpass roughness: 0.4778
+
+The injection-recovery test detected 75% of injected 4 MHz patterns and 100% of
+the injected 6-20 MHz patterns. For 30 MHz injections, the detection fraction was
+92.5%.
+
+These checks support the internal consistency of the analysis, but the empty-window
+and white-noise results are not a formal false-alarm probability.
 
 The other bursts:
 
@@ -103,13 +204,11 @@ The other bursts:
 | 11K | 11 | Fails the detection rule; no usable width |
 | 11C, 11B | about 7 and 5 | Screened out at low S/N, not analysed further |
 
-The early part of 11A (1.0-2.7 ms) also gave no stable width: it came out at 3.8, 13.6
-and 31.2 MHz for the three scales.
+The early part of 11A (1.0-2.7 ms) also gave no stable width: it came out at 3.8,
+13.6 and 31.2 MHz for the three envelope scales.
 
-The code in this repository is a cleaned-up restructuring of the notebook code, with
-the empty windows now starting at the beginning of the off-pulse window. The
-calibration is random, so rerunning gives numbers that can differ from the table by a
-few tenths of a MHz.
+The calibration is random, so rerunning the analysis can give slightly different
+numbers. The values above correspond to the latest run documented here.
 
 ## Limitations
 
@@ -126,6 +225,10 @@ few tenths of a MHz.
   explain. It is not present in the empty windows.
 - The scaling to other frequencies in the report assumes width proportional to
   frequency to the power 4-4.4, which I did not test.
+
+The measured width should therefore be treated as a frequency correlation width
+consistent in order of magnitude with Galactic scintillation, not as a confirmed
+scintillation bandwidth.
 
 ## Tests
 
@@ -152,7 +255,7 @@ real file.
         config.py     config file loading
     scripts/          command-line entry points
     configs/          one JSON file per burst
-    tests/
+    tests/            automated tests
     data/             put the downloaded burst files here
 
 ## Reference
@@ -166,3 +269,4 @@ Data: Breakthrough Listen, https://seti.berkeley.edu/frb121102/technical.html
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
