@@ -40,7 +40,7 @@ The measured width depends on the envelope scale, so the code also calibrates it
 
 ## Setup
 
-    git clone https://github.com/<your-username>/frb121102-acf.git
+    git clone https://github.com/Vicks-03/FRB121102-acf3.git
     cd frb121102-acf
     pip install -r requirements.txt
 
