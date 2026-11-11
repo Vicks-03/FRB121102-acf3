@@ -9,7 +9,8 @@ This repository implements that measurement as a Python pipeline and tests it wi
 - In the late part of burst 11A (2.7-5.0 ms, centred near 6 GHz), the calibrated frequency-correlation width is **8.45, 10.04 and 11.06 MHz** at the three envelope scales (mean 9.85 MHz).
 - The raw ACF width depends on the envelope scale (5.8 to 9.4 MHz). Injection-recovery calibration reduces this dependence, and the calibrated values agree to within the calibration ranges.
 - Empty off-pulse windows (0/5) and pure white noise (0/200) never pass the detection rule.
-- The width is lower than a naive extrapolation of the Spitler et al. (2018) value to 6 GHz (about 15-16 MHz), by a factor of roughly 1.6. The frequency scaling used for that extrapolation is assumed, not measured here.
+- Scaled to 6.4 GHz with Δν ∝ ν^4 to ν^4.4, the mean width becomes about 12.8-13.1 MHz. The published ACF width for burst 11A in a sub-band centred at 6.407 GHz is 11.5 ± 1.2 MHz (Gajjar et al. 2018). The two are close, but the scaling is assumed and the methods differ.
+- A reanalysis of the same GBT data (Levkov et al. 2022) reports a smaller decorrelation bandwidth, 3.3 ± 0.6 MHz at 6 GHz, so the value depends on the method and definition used.
 - Only 1 of the 5 bursts examined (11A) is bright enough to give a stable width.
 - The result is a measured frequency-correlation width consistent in order of magnitude with Galactic scintillation. These data do not by themselves show that the structure is scintillation.
 
@@ -18,7 +19,7 @@ This repository implements that measurement as a Python pipeline and tests it wi
 1. What frequency-correlation width does burst 11A show near 6 GHz?
 2. How sensitive is the measured width to the choice of spectral envelope scale?
 3. How accurately does the pipeline recover a known injected width, and what bias does it have?
-4. Is the result consistent with the Spitler et al. (2018) measurement and with expectations for Galactic scintillation?
+4. Is the result consistent with published measurements from the same and from independent data, and with expectations for Galactic scintillation?
 5. Does the measurement hold across other bursts and time windows in the same data?
 
 ## Data
@@ -105,9 +106,13 @@ These controls support the internal consistency of the analysis. They are not a 
 
 ## Comparison with previous work
 
-Spitler et al. (2018) measured a characteristic frequency scale of 6.4 ± 1.6 MHz for FRB 121102 at 4.85 GHz. Scaling with Δν ∝ ν^4 to ν^4.4 gives about 15-16 MHz at 6 GHz (±4 MHz from the original uncertainty alone). The mean calibrated width here, about 9.9 MHz, is of the same order but lower than this extrapolation. The scaling index is an assumption and is not tested by this analysis. The difference may therefore reflect the assumed scaling, a different epoch or line of sight through the scattering medium, or a difference in method.
+**Spitler et al. (2018), Effelsberg, 4.85 GHz.** They measured 6.4 ± 1.6 MHz. Scaling with Δν ∝ ν^4 to ν^4.4 gives about 15-16 MHz at 6 GHz (±4 MHz from the original uncertainty alone). The mean calibrated width here, about 9.9 MHz, is of the same order but lower than this extrapolation.
 
-Gajjar et al. (2018), using GBT observations of FRB 121102 at 4-8 GHz, also reported fine-scale spectral structure at the 10-50 MHz level.
+**Gajjar et al. (2018), same GBT observation.** Their ACF analysis of sub-bands reports 11.5 ± 1.2 MHz for burst 11A in a sub-band centred at 6.407 GHz (their Table 2). Scaling the mean width here from 6.0 to 6.4 GHz with the same assumed index gives about 12.8-13.1 MHz, close to this value. They also describe fine-scale structure of about 10-50 MHz across bursts, consistent with Galactic diffractive scintillation.
+
+**Levkov et al. (2022), reanalysis of the same GBT data.** They report a decorrelation bandwidth of 3.3 ± 0.6 MHz at 6 GHz, about three times smaller than the value measured here. The two methods and definitions of "width" differ, so the values are not directly comparable without matching them. This shows that the width depends on the method used.
+
+The frequency scaling used above is an assumption and is not tested by this analysis. These comparisons give context for the measured structure but do not establish its physical origin.
 
 ## Other bursts and time windows
 
@@ -126,8 +131,8 @@ The early window of 11A (1.0-2.7 ms) gives widths of 3.8, 13.6 and 31.2 MHz at t
 - The empty-window and white-noise tests are not a formal false-alarm probability.
 - The injected patterns are idealised (Gaussian correlation, full modulation). The calibration holds only as far as these resemble the real burst.
 - Intrinsic spectral structure in the burst can produce a similar ACF. This analysis cannot separate intrinsic structure from propagation effects.
-- A broad ACF feature at about 85-110 MHz appears in both windows of 11A but not in empty windows. Its origin is unexplained.
-- The frequency scaling used in the comparison with Spitler et al. is assumed, not measured.
+- A broad ACF feature at about 85-110 MHz appears in both windows of 11A but not in empty windows. Its origin is unexplained. Levkov et al. (2022) report spectral peaks spaced by about 95 ± 16 MHz in the same GBT data, which may be related. This has not been tested here.
+- The frequency scaling used in the comparisons is assumed, not measured.
 
 ## Reproducing the analysis
 
@@ -144,7 +149,7 @@ Download `11A_16sec.calib.4p` (322,367,040 bytes) from the [data page](https://s
 ```bash
 python scripts/screen_burst.py data/11A_16sec.calib.4p   # inspect burst, suggest windows
 python scripts/measure.py configs/11A.json               # writes results/11A_summary.json
-python scripts/make_figures.py configs/11A.json          # writes figures/ (PNG and PDF)
+python scripts/make_figures.py configs/11A.json          # writes figures (PNG and PDF)
 ```
 
 The standard run uses 8 injection trials and 200 white-noise spectra. Use `--n-trials 4` for a quicker, less thoroughly sampled calibration. The calibration is random, so repeated runs can differ slightly. The numbers above are from the latest documented run.
@@ -178,6 +183,7 @@ The tests use synthetic data: signals with a known correlation width, noise-only
 ```text
 FRB121102-acf3/
 ├── frbacf/
+│   ├── figures./      report figures shown in this README
 │   ├── params.py      analysis settings
 │   ├── io.py          PSRFITS reader and calibration-array ordering check
 │   ├── clean.py       normalisation, masking, rebinning
@@ -192,8 +198,6 @@ FRB121102-acf3/
 ├── configs/           one JSON file per burst
 ├── tests/             automated tests
 ├── data/              downloaded burst files go here
-├── results/           written by scripts/measure.py
-├── figures/           written by scripts/make_figures.py
 ├── conftest.py
 ├── requirements.txt
 ├── requirements-dev.txt
@@ -205,7 +209,8 @@ FRB121102-acf3/
 
 1. Spitler, L. G., et al. (2018). *Detection of Bursts from FRB 121102 with the Effelsberg 100-m Radio Telescope at 5 GHz and the Role of Scintillation*. ApJ, 863, 150. https://doi.org/10.3847/1538-4357/aad332
 2. Gajjar, V., et al. (2018). *Highest Frequency Detection of FRB 121102 at 4-8 GHz Using the Breakthrough Listen Digital Backend at the Green Bank Telescope*. ApJ, 863, 2. https://doi.org/10.3847/1538-4357/aad005
-3. Breakthrough Listen. [FRB 121102 technical data](https://seti.berkeley.edu/frb121102/technical.html)
+3. Levkov, D. G., Panin, A. G., Tkachev, I. I. (2022). *Propagation Effects in the FRB 20121102A Spectra*. ApJ, 925, 109. https://doi.org/10.3847/1538-4357/ac3250
+4. Breakthrough Listen. [FRB 121102 technical data](https://seti.berkeley.edu/frb121102/technical.html)
 
 ## License
 
