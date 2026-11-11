@@ -26,7 +26,6 @@
 
 ---
 
-## Overview
 ## Abstract
 
 Fast Radio Bursts (FRBs) are millisecond-duration radio transients whose observed signals carry information about both their emission mechanisms and the environments through which their radiation propagates. In particular, frequency-dependent variations in their observed spectra can arise from interference between radio waves travelling along different paths through inhomogeneous ionised plasma. Such variations provide a potential observational probe of propagation effects, including interstellar scintillation.
