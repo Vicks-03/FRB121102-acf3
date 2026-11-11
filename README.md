@@ -1,8 +1,32 @@
-# FRB121102-acf3
-## Frequency Autocorrelation Analysis of FRB 121102: Investigating Spectral Structure and Scintillation Bandwidths
-An independent analysis of public Green Bank Telescope observations using autocorrelation, injection–recovery calibration and noise controls.
+# Frequency Autocorrelation Analysis of FRB 121102: Investigating Spectral Structure and Scintillation Bandwidths
+
+*An independent analysis of public Green Bank Telescope observations using autocorrelation, injection–recovery calibration and noise controls.*
+
 ---
 
+## Key Results at a Glance
+
+<p align="center">
+  <img src="frbacf/figures./11A_dynamic_spectrum.png" width="85%" alt="Dynamic spectrum of FRB 121102 burst 11A">
+</p>
+
+**Dynamic spectrum:** Frequency–time representation of burst 11A, showing the observed emission across the analysed frequency band.
+
+<p align="center">
+  <img src="frbacf/figures./11A_acf_fits.png" width="85%" alt="Autocorrelation function fits for burst 11A">
+</p>
+
+**Autocorrelation analysis:** Autocorrelation functions and fitted frequency-correlation widths used to characterise the burst's spectral structure.
+
+<p align="center">
+  <img src="frbacf/figures./11A_injection_recovery.png" width="85%" alt="Injection-recovery calibration results">
+</p>
+
+**Injection–recovery calibration:** Recovery of synthetic spectral structures with known input widths, used to assess and calibrate the measured characteristic bandwidth.
+
+---
+
+## Overview
 ## Abstract
 
 Fast Radio Bursts (FRBs) are millisecond-duration radio transients whose observed signals carry information about both their emission mechanisms and the environments through which their radiation propagates. In particular, frequency-dependent variations in their observed spectra can arise from interference between radio waves travelling along different paths through inhomogeneous ionised plasma. Such variations provide a potential observational probe of propagation effects, including interstellar scintillation.
