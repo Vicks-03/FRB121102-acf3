@@ -1,6 +1,5 @@
 # FRB121102-acf3
 ## Frequency Autocorrelation Analysis of FRB 121102: Investigating Spectral Structure and Scintillation Bandwidths
-
 An independent analysis of public Green Bank Telescope observations using autocorrelation, injection–recovery calibration and noise controls.
 ---
 
