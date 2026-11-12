@@ -4,6 +4,16 @@
 
 ---
 
+## In Brief
+
+- **What this is:** a Python pipeline that measures the frequency-correlation width of FRB 121102 burst spectra with an autocorrelation (ACF) method motivated by Spitler et al. (2018), applied to public Breakthrough Listen GBT data (4–8 GHz).
+- **Main result:** the later emission of burst 11A (2.7–5.0 ms) gives a calibrated correlation width of **≈ 9.85 MHz near 6 GHz** (8.45–11.06 MHz across three envelope-subtraction scales).
+- **Main methodological finding:** the raw width depends on the envelope-subtraction scale (5.8–9.4 MHz across 80–300 MHz; largest/smallest ratio 1.62). Injection–recovery calibration with synthetic scintillation of known width reduces this spread (largest/smallest ratio 1.31).
+- **Controls:** 0 of 5 burst-free windows and 0 of 200 white-noise spectra satisfy the detection rule.
+- **Main caveat:** only one of five bursts gives a stable width, from one epoch. The result is a correlation width consistent in order of magnitude with Galactic scintillation, not a confirmed scintillation bandwidth.
+
+---
+
 ## Key Results at a Glance
 
 <p align="center">
@@ -23,6 +33,26 @@
 </p>
 
 **Injection–recovery calibration:** Recovery of synthetic spectral structures with known input widths, used to assess and calibrate the measured characteristic bandwidth.
+
+---
+
+## Contents
+
+- [Abstract](#abstract)
+- [1. Scientific Motivation](#1-scientific-motivation)
+- [2. Observational Data](#2-observational-data)
+- [3. Analysis Methodology](#3-analysis-methodology)
+- [4. Filtering Bias and Injection–Recovery Calibration](#4-filtering-bias-and-injectionrecovery-calibration)
+- [5. Validation and Control Experiments](#5-validation-and-control-experiments)
+- [6. Results: Burst 11A](#6-results-burst-11a)
+- [7. Results Across the Five Bursts](#7-results-across-the-five-bursts)
+- [8. Comparison with Published Work](#8-comparison-with-published-work)
+- [9. Discussion and Physical Interpretation](#9-discussion-and-physical-interpretation)
+- [10. Limitations and Future Work](#10-limitations-and-future-work)
+- [11. Reproducing the Analysis](#11-reproducing-the-analysis)
+- [12. Repository Structure](#12-repository-structure)
+- [13. Principal Analysis Settings](#13-principal-analysis-settings)
+- [14. References](#14-references)
 
 ---
 
@@ -522,7 +552,7 @@ The range across the three smoothing configurations is:
 
 **8.45–11.06 MHz**
 
-The calibration reduces the spread between the three estimates compared with the uncorrected measurements.
+The calibration reduces the spread between the three estimates compared with the uncorrected measurements: the ratio of the largest to the smallest width falls from about 1.62 (raw) to about 1.31 (corrected).
 
 This suggests that the injection–recovery procedure successfully compensates for part of the filtering dependence.
 
@@ -675,7 +705,7 @@ The principal results are summarised below.
 
 The calibrated widths obtained using the three envelope-smoothing configurations are:
 
-| Envelope scale | Raw HWHM | Fit amplitude | Calibrated HWHM | Calibration range |
+| Envelope scale | Raw HWHM (MHz) | Fit amplitude | Calibrated HWHM | Calibration range |
 |---|---:|---:|---:|---:|
 | 80 MHz | 5.8 | 0.31 | 8.45 MHz | 7.66–9.74 MHz |
 | 150 MHz | 7.7 | 0.34 | 10.04 MHz | 8.56–12.03 MHz |
@@ -1077,6 +1107,10 @@ The additional ACF feature around 85–110 MHz deserves further examination, par
 **5. Independent observations**
 
 Applying the same measurement framework to observations obtained at different frequencies and epochs could help investigate whether the observed frequency structure evolves in a manner consistent with propagation through a turbulent plasma.
+
+**6. Sub-band frequency scaling and multi-epoch tracking**
+
+Measuring the width in sub-bands of the 4–8 GHz band, with the calibration repeated for each sub-band, would test directly whether the width follows the steep frequency scaling expected for scattering, instead of assuming it. Applying the same config-driven pipeline per burst, band and epoch would then allow the time variation of the width to be tracked. A fixed envelope filter could bias widths differently at different frequencies, so the injection–recovery calibration must be repeated for each band for such a scaling fit to be reliable.
 
 Ultimately, the most useful extension would be to combine repeated frequency-correlation measurements with independent propagation diagnostics.
 
@@ -1535,6 +1569,31 @@ A basic workflow is:
 
 The primary analysis does not require a graphical interface, so the command-line scripts can be executed directly inside notebook cells.
 
+A minimal sequence of Colab cells for the burst 11A analysis is:
+
+```python
+!git clone https://github.com/Vicks-03/FRB121102-acf3.git
+%cd FRB121102-acf3
+!pip install -r requirements-dev.txt
+```
+
+Upload `11A_16sec.calib.4p` (downloaded from the Breakthrough Listen page) and move it into `data/`:
+
+```python
+from google.colab import files
+import shutil
+uploaded = files.upload()
+shutil.move("11A_16sec.calib.4p", "data/11A_16sec.calib.4p")
+```
+
+Then run the tests, the analysis and the figure generation:
+
+```python
+!pytest -q
+!python scripts/measure.py configs/11A.json
+!python scripts/make_figures.py configs/11A.json
+```
+
 ---
 
 ## 12. Repository Structure
@@ -1702,9 +1761,5 @@ Implementing the autocorrelation analysis provided an opportunity to engage with
 A particularly important part of the project was the process of identifying the dependence of the initial measurement on spectral-envelope subtraction, developing injection–recovery experiments to investigate that dependence, and determining which portions of the observational data could support a reasonably stable characteristic width.
 
 The project has also motivated further interest in observational radio astronomy, particularly the use of frequency-dependent propagation effects to investigate the distribution and physical properties of intervening baryonic matter.
-
----
-
-*This repository documents an independent analysis of publicly available FRB 121102 observations. The characteristic widths, calibration ranges and physical interpretations presented here are conditional on the adopted data-processing procedures, injection model and analysis assumptions. A measured frequency-correlation scale should not be interpreted as a confirmed scintillation bandwidth without additional observational and physical evidence.*
 
 
